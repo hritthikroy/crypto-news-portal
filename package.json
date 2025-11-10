@@ -30,8 +30,7 @@
   "author": "CryptoDaily",
   "license": "MIT",
   "engines": {
-    "node": "22.x",
-    "npm": ">=8.0.0"
+    "node": ">=18.x"
   },
   "repository": {
     "type": "git",

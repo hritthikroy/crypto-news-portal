@@ -3,26 +3,16 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node",
-      "config": { "includeFiles": ["public/**"] }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/(.+\\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|json|xml|html))",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/server.js"
-    },
-    {
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
