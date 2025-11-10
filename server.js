@@ -9,11 +9,14 @@ const cheerio = require('cheerio'); // Added for HTML parsing
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from the root directory with proper cache settings
-app.use(express.static(path.join(__dirname), {
+// Serve static files from the public directory with proper cache settings
+app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1d',  // Cache static files for 1 day
   etag: true     // Enable ETag caching
 }));
+
+// Also serve files from root directory to maintain backward compatibility
+app.use(express.static(path.join(__dirname)));
 
 // Enable CORS
 app.use(cors());
