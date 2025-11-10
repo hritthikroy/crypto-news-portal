@@ -15,6 +15,11 @@ app.use(express.static(path.join(__dirname)));
 // Enable CORS
 app.use(cors());
 
+// Route for the root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // RSS feeds to aggregate
 const feeds = [
     'https://cointelegraph.com/rss',

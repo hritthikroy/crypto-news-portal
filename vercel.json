@@ -17,12 +17,8 @@
       "dest": "server.js"
     },
     {
-      "src": "/post.html",
-      "dest": "post.html"
-    },
-    {
       "src": "/(.*)",
-      "dest": "$1"
+      "dest": "server.js"
     }
   ]
 }
