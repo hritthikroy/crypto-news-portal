@@ -1,8 +1,43 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Environment Variables
 .env
+.env.local
+.env.production
+
+# System Files
 .DS_Store
+Thumbs.db
+
+# Logs
 npm-debug.log*
-coverage/
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Build Output
 dist/
 build/
-*.log
+coverage/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup Files
+*.bak
+*.backup
+*.tmp
+
+# Vercel
+.vercel
+
+# Optional
+.cache/
