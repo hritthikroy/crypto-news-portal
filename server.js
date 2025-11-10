@@ -15,25 +15,22 @@ app.use(express.static(path.join(__dirname, 'public'), {
   etag: true     // Enable ETag caching
 }));
 
-// Also serve files from root directory to maintain backward compatibility
-app.use(express.static(path.join(__dirname)));
-
 // Enable CORS
 app.use(cors());
 
 // Route for the root path
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Route for all HTML pages
 app.get('/*.html', (req, res) => {
     const fileName = path.basename(req.url);
-    const filePath = path.join(__dirname, fileName);
+    const filePath = path.join(__dirname, 'public', fileName);
     res.sendFile(filePath, (err) => {
         if (err) {
             // If the file doesn't exist, send index.html as fallback for client-side routing
-            res.sendFile(path.join(__dirname, 'index.html'));
+            res.sendFile(path.join(__dirname, 'public', 'index.html'));
         }
     });
 });
