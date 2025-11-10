@@ -3,17 +3,32 @@
   "framework": "express",
   "functions": {
     "server.js": {
-      "includeFiles": "node_modules/**",
-      "excludeFiles": "node_modules/{@types,jest,ts-jest,typescript,eslint,prettier}/**"
+      "includeFiles": "node_modules/**"
     }
   },
   "rewrites": [
+    {
+      "source": "/css/(.*)",
+      "destination": "/css/$1"
+    },
+    {
+      "source": "/js/(.*)",
+      "destination": "/js/$1"
+    },
+    {
+      "source": "/images/(.*)",
+      "destination": "/images/$1"
+    },
+    {
+      "source": "/ads/(.*)",
+      "destination": "/ads/$1"
+    },
     {
       "source": "/(.+\\.html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|json|xml)$",
       "destination": "/$1"
     },
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": "/server.js"
     },
     {
