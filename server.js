@@ -70,16 +70,16 @@ function isValidImage(imageUrl) {
         imageUrl.includes('no-image')) {
         return false;
     }
+
+    // Allow known image hosting services and any URL that starts with http and contains image-related keywords
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'];
+    const hasValidExtension = imageExtensions.some(ext => imageUrl.toLowerCase().endsWith(ext));
     
-    // Check if it's an actual image URL
-    return imageUrl.startsWith('http') && 
-           (imageUrl.endsWith('.jpg') || 
-            imageUrl.endsWith('.jpeg') || 
-            imageUrl.endsWith('.png') || 
-            imageUrl.endsWith('.gif') || 
-            imageUrl.endsWith('.webp') ||
-            imageUrl.includes('/images/') ||
-            imageUrl.includes('img.'));
+    // Check if URL contains image-related keywords
+    const imageKeywords = ['image', 'img', '/images/', '/img/', '.cloudfront.net', '.amazonaws.com', 'cdn.', 'media.', 'assets.', 'wp-content', 'uploads'];
+    const hasImageKeyword = imageKeywords.some(keyword => imageUrl.toLowerCase().includes(keyword));
+    
+    return imageUrl.startsWith('http') && (hasValidExtension || hasImageKeyword);
 }
 
 // API endpoint to fetch news
