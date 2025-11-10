@@ -1,28 +1,28 @@
 {
   "version": 2,
-  "name": "crypto-news-portal",
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
+  "framework": "express",
+  "functions": {
+    "server.js": {
+      "includeFiles": "node_modules/**",
+      "excludeFiles": "node_modules/{@types,jest,ts-jest,typescript,eslint,prettier}/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.+\\.html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|json|xml)$",
-      "dest": "/$1"
+      "source": "/(.+\\.html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|json|xml)$",
+      "destination": "/$1"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "server.js"
+      "source": "/api/:path*",
+      "destination": "/server.js"
     },
     {
-      "src": "/sitemap.xml",
-      "dest": "server.js"
+      "source": "/sitemap.xml",
+      "destination": "/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "server.js"
+      "source": "/(.*)",
+      "destination": "/server.js"
     }
   ]
 }
