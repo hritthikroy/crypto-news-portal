@@ -5,6 +5,10 @@ const path = require('path');
 const Parser = require('rss-parser');
 const axios = require('axios');
 const cheerio = require('cheerio'); // Added for HTML parsing
+const { inject } = require('@vercel/analytics');
+
+// Initialize analytics injection
+inject();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
