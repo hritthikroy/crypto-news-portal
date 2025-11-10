@@ -1,0 +1,155 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const Parser = require('rss-parser');
+const axios = require('axios');
+const fs = require('fs');
+
+const app = express();
+const port = 3000;
+
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname)));
+
+// Enable CORS
+app.use(cors());
+
+// RSS feeds to aggregate
+const feeds = [
+    'https://cointelegraph.com/rss',
+    'https://www.coindesk.com/arc/outboundfeeds/rss/',
+    'https://crypto.news/feed/'
+];
+
+const parser = new Parser();
+
+// Function to extract image from content
+function extractImage(content) {
+    if (!content) return null;
+    
+    // Look for image URLs in the content
+    const imgRegex = /<img[^>]+src="([^">]+)"/gi;
+    const matches = imgRegex.exec(content);
+    if (matches && matches[1]) {
+        return matches[1];
+    }
+    
+    return null;
+}
+
+// Function to check if image URL is valid (not a placeholder)
+function isValidImage(imageUrl) {
+    if (!imageUrl) return false;
+    
+    // Check if it's a placeholder image
+    if (imageUrl.includes('placeholder.com') || 
+        imageUrl.includes('placeholder') || 
+        imageUrl.includes('temp') ||
+        imageUrl.includes('dummy') ||
+        imageUrl.includes('no-image')) {
+        return false;
+    }
+    
+    // Check if it's an actual image URL
+    return imageUrl.startsWith('http') && 
+           (imageUrl.endsWith('.jpg') || 
+            imageUrl.endsWith('.jpeg') || 
+            imageUrl.endsWith('.png') || 
+            imageUrl.endsWith('.gif') || 
+            imageUrl.endsWith('.webp') ||
+            imageUrl.includes('/images/') ||
+            imageUrl.includes('img.'));
+}
+
+// API endpoint to fetch news
+app.get('/api/news', async (req, res) => {
+    try {
+        const allItems = [];
+        
+        // Fetch from all feeds
+        for (const feedUrl of feeds) {
+            try {
+                const feed = await parser.parseURL(feedUrl);
+                feed.items.forEach(item => {
+                    const extractedImage = extractImage(item.content) || item.enclosure?.url || 
+                                          item.itunes?.image;
+                    
+                    // Only include items with valid images
+                    if (extractedImage && isValidImage(extractedImage)) {
+                        allItems.push({
+                            title: item.title,
+                            description: item.contentSnippet || item.description || '',
+                            link: item.link,
+                            pubDate: item.pubDate || item.isoDate,
+                            source: new URL(feedUrl).hostname,
+                            image: extractedImage
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error(`Error fetching feed ${feedUrl}:`, error.message);
+                // Continue with other feeds even if one fails
+            }
+        }
+        
+        // Sort by date (newest first)
+        allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        
+        // Limit to top 100 items
+        const topItems = allItems.slice(0, 100);
+        
+        res.json(topItems);
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        res.status(500).json({ error: 'Failed to fetch news' });
+    }
+});
+
+// API endpoint to fetch popular news (top 10)
+app.get('/api/popular', async (req, res) => {
+    try {
+        const allItems = [];
+        
+        // Fetch from all feeds
+        for (const feedUrl of feeds) {
+            try {
+                const feed = await parser.parseURL(feedUrl);
+                feed.items.forEach(item => {
+                    const extractedImage = extractImage(item.content) || item.enclosure?.url || 
+                                          item.itunes?.image;
+                    
+                    // Only include items with valid images
+                    if (extractedImage && isValidImage(extractedImage)) {
+                        allItems.push({
+                            title: item.title,
+                            description: item.contentSnippet || item.description || '',
+                            link: item.link,
+                            pubDate: item.pubDate || item.isoDate,
+                            source: new URL(feedUrl).hostname,
+                            image: extractedImage
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error(`Error fetching feed ${feedUrl}:`, error.message);
+                // Continue with other feeds even if one fails
+            }
+        }
+        
+        // Sort by date (newest first)
+        allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        
+        // For popular news, we might want to sort differently in the future
+        // For now, just return top 10 most recent
+        const topItems = allItems.slice(0, 10);
+        
+        res.json(topItems);
+    } catch (error) {
+        console.error('Error fetching popular news:', error);
+        res.status(500).json({ error: 'Failed to fetch popular news' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Crypto news server running at http://localhost:${port}`);
+});
