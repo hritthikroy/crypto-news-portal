@@ -666,6 +666,12 @@ app.get('/sitemap.xml', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Crypto news server running at http://localhost:${PORT}`);
-});
+// Only listen when not running on Vercel
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Crypto news server running at http://localhost:${PORT}`);
+    });
+}
+
+// Export for Vercel serverless
+module.exports = app;
