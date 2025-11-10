@@ -20,6 +20,18 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Route for all HTML pages
+app.get('/*.html', (req, res) => {
+    const fileName = path.basename(req.url);
+    const filePath = path.join(__dirname, fileName);
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            // If the file doesn't exist, send index.html as fallback for client-side routing
+            res.sendFile(path.join(__dirname, 'index.html'));
+        }
+    });
+});
+
 // RSS feeds to aggregate
 const feeds = [
     'https://cointelegraph.com/rss',
