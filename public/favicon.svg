@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="coinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3A86FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4361EE;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer coin circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#coinGradient)" stroke="#FFF" stroke-width="2"/>
+  
+  <!-- Bitcoin-inspired B symbol -->
+  <path d="M 35 30 L 35 70 L 52 70 C 58 70 63 65 63 59 C 63 55 61 52 58 50 C 61 48 63 45 63 41 C 63 35 58 30 52 30 Z M 42 36 L 52 36 C 54 36 56 38 56 41 C 56 44 54 46 52 46 L 42 46 Z M 42 52 L 52 52 C 54 52 57 54 57 59 C 57 62 54 64 52 64 L 42 64 Z" fill="#FFF"/>
+  
+  <!-- Crypto symbol accents -->
+  <circle cx="25" cy="25" r="3" fill="#FFD60A" opacity="0.8"/>
+  <circle cx="75" cy="75" r="3" fill="#FFD60A" opacity="0.8"/>
+  <circle cx="75" cy="25" r="2" fill="#00F5FF" opacity="0.6"/>
+  <circle cx="25" cy="75" r="2" fill="#00F5FF" opacity="0.6"/>
+</svg>
+
