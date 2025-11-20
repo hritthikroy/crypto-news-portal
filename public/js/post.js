@@ -345,31 +345,33 @@ function showAdOverlay() {
     // The overlay ad needs special handling since it's initially in a hidden container
     setTimeout(() => {
         const overlayAd = document.querySelector('.ad-overlay-ins .adsbygoogle');
-        if (overlayAd && !overlayAd.hasAttribute('data-ad-status')) {
-            // Mark as being handled
-            overlayAd.setAttribute('data-ad-status', 'processing');
-
-            // Temporarily make the overlay visible for dimension calculation
+        if (overlayAd) {
+            // Temporarily make the overlay visible to ensure proper dimensions
             const originalDisplay = adOverlay.style.display;
+            const originalVisibility = adOverlay.style.visibility;
+            const originalOpacity = adOverlay.style.opacity;
+
+            // Force the overlay to be rendered temporarily
             adOverlay.style.display = 'flex';
-            adOverlay.style.visibility = 'hidden'; // Visually hidden but affects layout
+            adOverlay.style.visibility = 'hidden'; // Hidden but affects layout
+            adOverlay.style.opacity = '0'; // Completely transparent
 
-            // Force layout calculation
-            const forceLayout = overlayAd.offsetWidth;
+            // Force reflow to calculate dimensions
+            adOverlay.offsetHeight; // This forces the browser to recalculate
 
-            // Initialize only this specific ad element
             try {
+                // Now that dimensions are calculated, initialize the ad
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
             } catch (e) {
                 console.error("AdSense overlay error:", e);
             } finally {
-                // Mark as done and restore original state
-                overlayAd.setAttribute('data-ad-status', 'done');
+                // Restore original state
                 adOverlay.style.display = originalDisplay;
-                adOverlay.style.visibility = '';
+                adOverlay.style.visibility = originalVisibility;
+                adOverlay.style.opacity = originalOpacity;
             }
         }
-    }, 100); // Slightly longer delay to ensure overlay setup complete
+    }, 200); // Slightly longer delay to ensure proper setup
 }
 
 // Function to hide ad overlay and show content

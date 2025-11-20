@@ -362,19 +362,18 @@ function showNextItems() {
                 // Add the ad element to the grid first
                 newsGrid.appendChild(adElement);
 
-                // For dynamically added ads, they should be initialized via push
-                // But to avoid conflicts with inline pushes, we'll use a targeted approach
-                // Process this new ad element after a delay to ensure it's properly in DOM
+                // After adding the new ad element to DOM, we need to allow the page to process it.
+                // Since AdSense processes all unprocessed ads when push() is called, we'll call it
+                // after a delay to allow this specific ad to be recognized.
+                // To avoid conflicts, we'll delay the push call until after the main page ads are processed.
                 setTimeout(() => {
-                    if (typeof adsbygoogle !== 'undefined') {
-                        try {
-                            // Initialize the newly added ad
-                            (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        } catch (e) {
-                            console.error("Dynamic ad error:", e);
-                        }
+                    try {
+                        // Initialize all unprocessed ads (including the one we just added)
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    } catch (e) {
+                        console.error("Dynamic ad initialization error:", e);
                     }
-                }, 200); // Wait to ensure element is properly in DOM
+                }, 300); // Longer delay to allow page ads to be processed first
             }
         }
         
@@ -613,42 +612,23 @@ function initializeAdSense() {
     // since HTML already initializes static ads
 }
 
-// Initialize ads after DOM is loaded - only handle ads that need initialization
-// Skip this if there are already adsbygoogle elements that should be handled by HTML
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        // Small delay to ensure all HTML ads are processed
-        setTimeout(() => {
-            // Only initialize if no explicit initialization has happened yet
-            // and only if there are ads on the page that may need initialization
+// Most ads in HTML should be handled by their inline push calls.
+// Only initialize if there's a specific need to catch any missed ads.
+// This prevents conflicts with inline initialization.
+setTimeout(() => {
+    if (typeof adsbygoogle !== 'undefined' && !window.adsenseInitialized) {
+        try {
             const ads = document.querySelectorAll('.adsbygoogle');
-            if (ads.length > 0 && !window.adsenseInitialized) {
-                try {
-                    // Initialize any ads that haven't been processed yet
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.error("Initial AdSense error:", e);
-                }
+            if (ads.length > 0) {
+                // Initialize any remaining ads that might not have been processed by inline scripts
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
                 window.adsenseInitialized = true;
             }
-        }, 800); // Longer delay to handle all HTML ads first
-    });
-} else {
-    // DOM is already loaded, initialize ads after a short delay to ensure all elements are ready
-    setTimeout(() => {
-        // Only initialize if no explicit initialization has happened yet
-        const ads = document.querySelectorAll('.adsbygoogle');
-        if (ads.length > 0 && !window.adsenseInitialized) {
-            try {
-                // Initialize any ads that haven't been processed yet
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {
-                console.error("Initial AdSense error:", e);
-            }
-            window.adsenseInitialized = true;
+        } catch (e) {
+            console.error("AdSense initialization error:", e);
         }
-    }, 800); // Longer delay to handle all HTML ads first
-}
+    }
+}, 1000); // Delay to ensure inline scripts have run first
 
 // Daily news update is handled by the countdown timer
 // The countdown handles automatic refresh at the specified interval
