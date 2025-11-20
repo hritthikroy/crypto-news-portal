@@ -344,23 +344,26 @@ function showAdOverlay() {
     // Initialize AdSense for the overlay ad specifically
     // Make sure the ad container has proper dimensions when initializing
     setTimeout(() => {
-        try {
-            const overlayInsContainer = document.querySelector('.ad-overlay-ins');
-            if (overlayInsContainer) {
-                const overlayAd = overlayInsContainer.querySelector('.adsbygoogle');
+        // Force layout calculation by accessing offsetWidth to ensure the element has dimensions
+        const overlayInsContainer = document.querySelector('.ad-overlay-ins');
+        if (overlayInsContainer) {
+            // Force the browser to calculate layout/dimensions by accessing offsetWidth
+            const forceLayout = overlayInsContainer.offsetWidth;
 
-                // Ensure the ad container has proper display properties for dimension calculation
-                if (overlayAd) {
-                    // Ensure the ad element has proper styles for AdSense
-                    overlayAd.style.display = 'block';
-                    overlayAd.style.width = '100%';
+            const overlayAd = overlayInsContainer.querySelector('.adsbygoogle');
 
-                    // Then initialize the ad
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                }
+            // Ensure the ad container has proper display properties for dimension calculation
+            if (overlayAd) {
+                // Ensure the ad element has proper styles for AdSense
+                overlayAd.style.display = 'block';
+                overlayAd.style.width = '100%';
+
+                // Force calculation of the ad element's dimensions as well
+                const forceAdLayout = overlayAd.offsetWidth;
+
+                // Then initialize the ad
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
             }
-        } catch (e) {
-            console.error("AdSense overlay error:", e);
         }
     }, 300); // Slightly longer delay to ensure container is properly set up
 }
@@ -437,6 +440,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize ads after loading article
     setTimeout(() => {
         if (!window.adsenseInitialized) {
+            // Force layout calculation before initializing ads
+            const adElements = document.querySelectorAll('.adsbygoogle');
+            adElements.forEach(ad => {
+                // Force browser to calculate layout/dimensions
+                const forceLayout = ad.offsetWidth;
+            });
+
             initializeAdSense();
         }
     }, 1000); // Delay slightly to ensure content is loaded
