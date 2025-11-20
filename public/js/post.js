@@ -389,6 +389,17 @@ function initializeAdSense() {
     window.adsenseInitialized = true;
 
     try {
+        // Force layout calculation for all ad elements before initializing
+        const adElements = document.querySelectorAll('.adsbygoogle');
+        adElements.forEach(ad => {
+            // Ensure the ad element has display:block and proper dimensions
+            if (ad.style.display === '' || ad.style.display === 'inline') {
+                ad.style.display = 'block';
+            }
+            // Force the browser to calculate layout/dimensions
+            const forceLayout = ad.offsetWidth;
+        });
+
         // Initialize all ads at once
         (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (e) {
