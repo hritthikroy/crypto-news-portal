@@ -353,9 +353,6 @@ function showNextItems() {
                              data-ad-slot="1234567893"
                              data-ad-format="auto"
                              data-full-width-responsive="true"></ins>
-                        <script>
-                             (adsbygoogle = window.adsbygoogle || []).push({});
-                        </script>
                     </div>
                 `;
                 newsGrid.appendChild(adElement);
@@ -582,6 +579,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load initial news
     loadNews();
 });
+
+// Initialize AdSense ads only once
+function initializeAdSense() {
+    // Use a flag to ensure ads are only initialized once
+    if (window.adsenseInitialized) {
+        return; // Already initialized
+    }
+
+    // Mark as initialized to prevent duplicate calls
+    window.adsenseInitialized = true;
+
+    // Wait a bit to ensure DOM is fully loaded before initializing ads
+    setTimeout(() => {
+        try {
+            // Initialize all ads at once
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("AdSense error:", e);
+            // Reset the flag if there was an error
+            window.adsenseInitialized = false;
+        }
+    }, 500);
+}
+
+// Initialize ads after DOM is loaded and page has loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAdSense);
+} else {
+    // DOM is already loaded, initialize ads after a short delay to ensure all elements are ready
+    setTimeout(initializeAdSense, 500);
+}
 
 // Daily news update is handled by the countdown timer
 // The countdown handles automatic refresh at the specified interval

@@ -341,8 +341,11 @@ function showAdOverlay() {
         clearInterval(countdownInterval);
     });
     
-    // Initialize AdSense for the overlay ad specifically
-    initializeAdSense();
+    // Check if ads have already been initialized, and initialize if not
+    // The overlay ad should be handled by the main adsense initialization
+    if (!window.adsenseInitialized) {
+        initializeAdSense();
+    }
 }
 
 // Function to hide ad overlay and show content
@@ -355,23 +358,24 @@ function hideAdOverlay() {
     clearInterval(countdownInterval);
 }
 
-// Function to initialize AdSense ads only on elements that haven't been initialized
+// Function to initialize AdSense ads only once
 function initializeAdSense() {
-    // Only initialize ads that don't have the 'data-ad-status' attribute set to 'done'
-    const adsToInitialize = document.querySelectorAll('ins.adsbygoogle:not([data-ad-status="done"])');
+    // Use a flag to ensure ads are only initialized once
+    if (window.adsenseInitialized) {
+        return; // Already initialized
+    }
 
-    adsToInitialize.forEach(ad => {
-        // Mark this ad as being initialized
-        ad.setAttribute('data-ad-status', 'loading');
+    // Mark as initialized to prevent duplicate calls
+    window.adsenseInitialized = true;
 
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error("AdSense error:", e);
-            // Reset the status if there was an error
-            ad.removeAttribute('data-ad-status');
-        }
-    });
+    try {
+        // Initialize all ads at once
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+        console.error("AdSense error:", e);
+        // Reset the flag if there was an error
+        window.adsenseInitialized = false;
+    }
 }
 
 // Fullscreen functionality
@@ -412,11 +416,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load the article first
     loadArticle();
-    
+
+    // Initialize ads after loading article
+    setTimeout(() => {
+        if (!window.adsenseInitialized) {
+            initializeAdSense();
+        }
+    }, 1000); // Delay slightly to ensure content is loaded
+
     // Show the ad overlay after a 5 second initial delay
     setTimeout(() => {
         showAdOverlay();
-        
+
         // After the initial ad, start the 40-second loop
         setInterval(() => {
             // Show ad after 5 seconds each loop
