@@ -138,35 +138,39 @@
     </footer>
 
     <script>
-        // Initialize AdSense ads only once
+        // Initialize AdSense ads only once for static pages
         function initializeAdSense() {
-            // Use a flag to ensure ads are only initialized once
             if (window.adsenseInitialized) {
                 return; // Already initialized
             }
 
-            // Mark as initialized to prevent duplicate calls
             window.adsenseInitialized = true;
 
-            // Wait a bit to ensure DOM is fully loaded before initializing ads
-            setTimeout(() => {
-                try {
-                    // Initialize all ads at once
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.error("AdSense error:", e);
-                    // Reset the flag if there was an error
-                    window.adsenseInitialized = false;
+            // Ensure all ad elements have proper dimensions before initialization
+            const adElements = document.querySelectorAll('.adsbygoogle');
+            adElements.forEach(ad => {
+                if (ad.style.display === '' || ad.style.display === 'inline') {
+                    ad.style.display = 'block';
                 }
-            }, 500);
+                // Force layout calculation
+                const forceLayout = ad.offsetWidth;
+            });
+
+            try {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error("AdSense error:", e);
+                window.adsenseInitialized = false;
+            }
         }
 
-        // Initialize ads after DOM is loaded and page has loaded
+        // Initialize ads after DOM is ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeAdSense);
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initializeAdSense, 400);
+            });
         } else {
-            // DOM is already loaded, initialize ads after a short delay to ensure all elements are ready
-            setTimeout(initializeAdSense, 500);
+            setTimeout(initializeAdSense, 400);
         }
     </script>
 </body>

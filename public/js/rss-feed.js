@@ -362,18 +362,16 @@ function showNextItems() {
                 // Add the ad element to the grid first
                 newsGrid.appendChild(adElement);
 
-                // After adding the new ad element to DOM, we need to allow the page to process it.
-                // Since AdSense processes all unprocessed ads when push() is called, we'll call it
-                // after a delay to allow this specific ad to be recognized.
-                // To avoid conflicts, we'll delay the push call until after the main page ads are processed.
+                // After adding the new ad element to DOM, initialize all ads again
+                // to include the newly added ad. This ensures dynamic ads get loaded too.
                 setTimeout(() => {
                     try {
-                        // Initialize all unprocessed ads (including the one we just added)
+                        // Initialize all ads including recently added dynamic ads
                         (adsbygoogle = window.adsbygoogle || []).push({});
                     } catch (e) {
                         console.error("Dynamic ad initialization error:", e);
                     }
-                }, 300); // Longer delay to allow page ads to be processed first
+                }, 400); // Slightly longer delay to ensure DOM is ready
             }
         }
         
@@ -612,23 +610,22 @@ function initializeAdSense() {
     // since HTML already initializes static ads
 }
 
-// Most ads in HTML should be handled by their inline push calls.
-// Only initialize if there's a specific need to catch any missed ads.
-// This prevents conflicts with inline initialization.
-setTimeout(() => {
-    if (typeof adsbygoogle !== 'undefined' && !window.adsenseInitialized) {
-        try {
-            const ads = document.querySelectorAll('.adsbygoogle');
-            if (ads.length > 0) {
-                // Initialize any remaining ads that might not have been processed by inline scripts
+// Initialize all ads on the index page since inline pushes have been removed
+// Run this after DOM is fully loaded and elements are ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Small delay to ensure all DOM elements are fully rendered
+    setTimeout(() => {
+        if (typeof window.adsbygoogle !== 'undefined' && !window.adsenseInitialized) {
+            try {
+                // Initialize all ads on the page
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
                 window.adsenseInitialized = true;
+            } catch (e) {
+                console.error("Index page AdSense error:", e);
             }
-        } catch (e) {
-            console.error("AdSense initialization error:", e);
         }
-    }
-}, 1000); // Delay to ensure inline scripts have run first
+    }, 600); // Delay to ensure all DOM elements are properly rendered
+});
 
 // Daily news update is handled by the countdown timer
 // The countdown handles automatic refresh at the specified interval
