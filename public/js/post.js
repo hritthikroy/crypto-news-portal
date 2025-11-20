@@ -341,35 +341,32 @@ function showAdOverlay() {
         clearInterval(countdownInterval);
     });
 
-    // Initialize only the overlay ad since it needs special handling
+    // Initialize overlay ads since they need special handling due to hidden container
     // Other ads are handled by inline pushes in HTML
     setTimeout(() => {
-        const overlayAd = document.querySelector('.ad-overlay-ins .adsbygoogle');
-        if (overlayAd) {
-            // Temporarily make the overlay visible for dimension calculation
-            const originalDisplay = adOverlay.style.display;
-            const originalVisibility = adOverlay.style.visibility;
-            const originalOpacity = adOverlay.style.opacity;
+        // Temporarily make the overlay visible for dimension calculation
+        const originalDisplay = adOverlay.style.display;
+        const originalVisibility = adOverlay.style.visibility;
+        const originalOpacity = adOverlay.style.opacity;
 
-            // Make overlay visible to browser (but invisible to user) for proper dimensions
-            adOverlay.style.display = 'flex';
-            adOverlay.style.visibility = 'hidden';
-            adOverlay.style.opacity = '0';
+        // Make overlay visible to browser (but invisible to user) for proper dimensions
+        adOverlay.style.display = 'flex';
+        adOverlay.style.visibility = 'hidden';
+        adOverlay.style.opacity = '0';
 
-            // Force layout calculation
-            adOverlay.offsetHeight;
+        // Force layout calculation
+        adOverlay.offsetHeight;
 
-            try {
-                // Initialize only the overlay ad
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {
-                console.error("AdSense overlay error:", e);
-            } finally {
-                // Restore original state
-                adOverlay.style.display = originalDisplay;
-                adOverlay.style.visibility = originalVisibility;
-                adOverlay.style.opacity = originalOpacity;
-            }
+        try {
+            // Initialize all ads in the overlay (both the main overlay ad and the ad-ins)
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("AdSense overlay error:", e);
+        } finally {
+            // Restore original state
+            adOverlay.style.display = originalDisplay;
+            adOverlay.style.visibility = originalVisibility;
+            adOverlay.style.opacity = originalOpacity;
         }
     }, 250); // Reasonable delay for overlay setup
 }

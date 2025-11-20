@@ -1212,18 +1212,20 @@ footer {
 .related-post-item a:hover {
     text-decoration: underline;
 }
-/* Ad Above Iframe Styles */
-.ad-above-iframe {
+/* Overlay Main Ad Styles */
+.overlay-main-ad {
     text-align: center;
-    margin: 20px 0;
+    margin: 10px;
     padding: 10px;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    z-index: 2; /* Above other overlay content */
 }
 
-.ad-above-iframe .adsbygoogle {
+.overlay-main-ad .adsbygoogle {
     margin: 0 auto;
+    display: block !important;
 }
 
 /* View Count Styles for Post Page */
