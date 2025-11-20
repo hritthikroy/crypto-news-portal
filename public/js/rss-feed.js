@@ -340,39 +340,6 @@ function showNextItems() {
             newsGrid.appendChild(newsElement);
             itemsAdded++;
             
-            // Add an ad after every 6 posts
-            if (itemsAdded > 0 && itemsAdded % 6 === 0) {
-                adsAdded++;
-                const adElement = document.createElement('div');
-                adElement.className = 'news-ad';
-                const adPlaceholder = document.createElement('div');
-                adPlaceholder.className = 'ad-placeholder';
-
-                const adIns = document.createElement('ins');
-                adIns.className = 'adsbygoogle';
-                adIns.style.display = 'block';
-                adIns.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX');
-                adIns.setAttribute('data-ad-slot', '1234567893');
-                adIns.setAttribute('data-ad-format', 'auto');
-                adIns.setAttribute('data-full-width-responsive', 'true');
-
-                adPlaceholder.appendChild(adIns);
-                adElement.appendChild(adPlaceholder);
-
-                // Add the ad element to the grid first
-                newsGrid.appendChild(adElement);
-
-                // For dynamic ads added after page load, we need to initialize them
-                // Wait a bit to ensure the ad element is properly added to DOM
-                setTimeout(() => {
-                    try {
-                        // Initialize the newly added ad - this handles dynamically created ads
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                    } catch (e) {
-                        console.error("Dynamic ad initialization error:", e);
-                    }
-                }, 350); // Wait for DOM insertion before initialization
-            }
         }
         
         index++;
