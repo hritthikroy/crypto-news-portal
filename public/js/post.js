@@ -341,51 +341,35 @@ function showAdOverlay() {
         clearInterval(countdownInterval);
     });
 
-    // Initialize the overlay ad - ensure the ad container has proper dimensions
-    // This is a more robust approach to ensure the overlay ad initializes properly
-
-    // First, show the overlay temporarily to calculate dimensions
-    const originalDisplay = adOverlay.style.display;
-    const originalZIndex = adOverlay.style.zIndex;
-
-    // Make overlay visible but behind other content to calculate dimensions
-    adOverlay.style.display = 'flex';
-    adOverlay.style.zIndex = '-100';  // Put behind everything
-    adOverlay.style.opacity = '0';    // Make invisible
-
-    // Force reflow to calculate dimensions
-    adOverlay.offsetHeight;
-
+    // Initialize the overlay ad specifically - this one needs special handling
+    // because it's in an initially hidden container
     setTimeout(() => {
-        const overlayInsContainer = document.querySelector('.ad-overlay-ins');
-        if (overlayInsContainer) {
-            const overlayAd = overlayInsContainer.querySelector('.adsbygoogle');
+        const overlayAd = document.querySelector('.ad-overlay-ins .adsbygoogle');
 
-            if (overlayAd && !overlayAd.hasAttribute('data-ad-status')) {
-                // Ensure proper styling for AdSense
-                overlayAd.style.display = 'block';
-                overlayAd.style.width = '100%';
+        if (overlayAd && !overlayAd.hasAttribute('data-ad-status')) {
+            // Mark as initialized first
+            overlayAd.setAttribute('data-ad-status', 'done');
 
-                // Force layout calculation for the ad element
-                const forceLayout = overlayAd.offsetWidth;
+            // Temporarily make the overlay visible for dimension calculation
+            const originalDisplay = adOverlay.style.display;
+            adOverlay.style.display = 'flex';
+            adOverlay.style.visibility = 'hidden'; // Visually hidden but affects layout
 
-                // Mark as initialized
-                overlayAd.setAttribute('data-ad-status', 'done');
+            // Force layout calculation
+            const forceLayout = overlayAd.offsetWidth;
 
-                try {
-                    // Initialize the specific overlay ad
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.error("AdSense overlay error:", e);
-                }
+            try {
+                // Initialize just this overlay ad
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error("AdSense overlay error:", e);
+            } finally {
+                // Restore original display, but keep it ready to show
+                adOverlay.style.display = originalDisplay;
+                adOverlay.style.visibility = '';
             }
         }
-
-        // Restore original overlay state (hidden)
-        adOverlay.style.display = originalDisplay;
-        adOverlay.style.zIndex = originalZIndex;
-        adOverlay.style.opacity = '';
-    }, 100);  // Brief time to allow dimension calculation
+    }, 50); // Quick initialization after the overlay setup
 }
 
 // Function to hide ad overlay and show content
@@ -409,19 +393,22 @@ function initializeAdSense() {
     window.adsenseInitialized = true;
 
     try {
-        // Force layout calculation for all ad elements before initializing
-        const adElements = document.querySelectorAll('.adsbygoogle');
-        adElements.forEach(ad => {
-            // Ensure the ad element has display:block and proper dimensions
-            if (ad.style.display === '' || ad.style.display === 'inline') {
-                ad.style.display = 'block';
-            }
-            // Force the browser to calculate layout/dimensions
-            const forceLayout = ad.offsetWidth;
-        });
+        // Wait a moment to ensure all ad elements from HTML are processed
+        setTimeout(() => {
+            // Force layout calculation for all ad elements before initializing
+            const adElements = document.querySelectorAll('.adsbygoogle');
+            adElements.forEach(ad => {
+                // Ensure the ad element has display:block and proper dimensions
+                if (ad.style.display === '' || ad.style.display === 'inline') {
+                    ad.style.display = 'block';
+                }
+                // Force the browser to calculate layout/dimensions
+                const forceLayout = ad.offsetWidth;
+            });
 
-        // Initialize all ads at once
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+            // Initialize all ads at once
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }, 100);
     } catch (e) {
         console.error("AdSense error:", e);
         // Reset the flag if there was an error
@@ -468,19 +455,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load the article first
     loadArticle();
 
-    // Initialize ads after loading article
-    setTimeout(() => {
-        if (!window.adsenseInitialized) {
-            // Force layout calculation before initializing ads
-            const adElements = document.querySelectorAll('.adsbygoogle');
-            adElements.forEach(ad => {
-                // Force browser to calculate layout/dimensions
-                const forceLayout = ad.offsetWidth;
-            });
-
-            initializeAdSense();
-        }
-    }, 1000); // Delay slightly to ensure content is loaded
+    // No need to initialize other ads via JavaScript - HTML handles them
+    // Only handle overlay ad initialization via JavaScript since it's in hidden container
 
     // Show the ad overlay after a 5 second initial delay
     setTimeout(() => {
