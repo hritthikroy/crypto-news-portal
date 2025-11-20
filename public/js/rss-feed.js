@@ -362,16 +362,16 @@ function showNextItems() {
                 // Add the ad element to the grid first
                 newsGrid.appendChild(adElement);
 
-                // After adding the new ad element to DOM, initialize all ads again
-                // to include the newly added ad. This ensures dynamic ads get loaded too.
+                // For dynamic ads added after page load, we need to initialize them
+                // Wait a bit to ensure the ad element is properly added to DOM
                 setTimeout(() => {
                     try {
-                        // Initialize all ads including recently added dynamic ads
+                        // Initialize the newly added ad - this handles dynamically created ads
                         (adsbygoogle = window.adsbygoogle || []).push({});
                     } catch (e) {
                         console.error("Dynamic ad initialization error:", e);
                     }
-                }, 400); // Slightly longer delay to ensure DOM is ready
+                }, 350); // Wait for DOM insertion before initialization
             }
         }
         
@@ -610,21 +610,13 @@ function initializeAdSense() {
     // since HTML already initializes static ads
 }
 
-// Initialize all ads on the index page since inline pushes have been removed
-// Run this after DOM is fully loaded and elements are ready
+// Initialize dynamic ads only, since static ads are handled by inline pushes
+// This will handle ads added dynamically like between blog posts
 document.addEventListener('DOMContentLoaded', () => {
-    // Small delay to ensure all DOM elements are fully rendered
-    setTimeout(() => {
-        if (typeof window.adsbygoogle !== 'undefined' && !window.adsenseInitialized) {
-            try {
-                // Initialize all ads on the page
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                window.adsenseInitialized = true;
-            } catch (e) {
-                console.error("Index page AdSense error:", e);
-            }
-        }
-    }, 600); // Delay to ensure all DOM elements are properly rendered
+    // Mark that page-level ads have been initialized to prevent conflicts
+    if (typeof window.adsbygoogle !== 'undefined') {
+        window.adsenseInitialized = true;
+    }
 });
 
 // Daily news update is handled by the countdown timer

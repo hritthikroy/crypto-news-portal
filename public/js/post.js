@@ -341,41 +341,37 @@ function showAdOverlay() {
         clearInterval(countdownInterval);
     });
 
-    // Initialize all ads on the page - including special overlay handling
-    // Since we removed inline pushes, we need to initialize everything from JavaScript
+    // Initialize only the overlay ad since it needs special handling
+    // Other ads are handled by inline pushes in HTML
     setTimeout(() => {
-        // First handle the overlay ad specially since it's in a hidden container
         const overlayAd = document.querySelector('.ad-overlay-ins .adsbygoogle');
         if (overlayAd) {
-            // Temporarily make the overlay visible to ensure proper dimensions
+            // Temporarily make the overlay visible for dimension calculation
             const originalDisplay = adOverlay.style.display;
             const originalVisibility = adOverlay.style.visibility;
             const originalOpacity = adOverlay.style.opacity;
 
-            // Force the overlay to be rendered temporarily
+            // Make overlay visible to browser (but invisible to user) for proper dimensions
             adOverlay.style.display = 'flex';
-            adOverlay.style.visibility = 'hidden'; // Hidden but affects layout
-            adOverlay.style.opacity = '0'; // Completely transparent
+            adOverlay.style.visibility = 'hidden';
+            adOverlay.style.opacity = '0';
 
-            // Force reflow to calculate dimensions
-            adOverlay.offsetHeight; // This forces the browser to recalculate
-        }
+            // Force layout calculation
+            adOverlay.offsetHeight;
 
-        // Initialize all ads on the page (this handles all ads including the prepared overlay ad)
-        try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error("AdSense error:", e);
+            try {
+                // Initialize only the overlay ad
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error("AdSense overlay error:", e);
+            } finally {
+                // Restore original state
+                adOverlay.style.display = originalDisplay;
+                adOverlay.style.visibility = originalVisibility;
+                adOverlay.style.opacity = originalOpacity;
+            }
         }
-
-        // Restore overlay state after initialization
-        if (overlayAd) {
-            const originalDisplay = adOverlay.style.display;
-            adOverlay.style.display = originalDisplay;
-            adOverlay.style.visibility = '';
-            adOverlay.style.opacity = '';
-        }
-    }, 300); // Longer delay to ensure all elements are properly set up
+    }, 250); // Reasonable delay for overlay setup
 }
 
 // Function to hide ad overlay and show content
@@ -388,34 +384,13 @@ function hideAdOverlay() {
     clearInterval(countdownInterval);
 }
 
-// Function to initialize AdSense ads only once
+// All static ads are initialized by inline pushes in HTML
+// This function is kept for compatibility but doesn't perform additional initialization
 function initializeAdSense() {
-    // Use a flag to ensure ads are only initialized once
-    if (window.adsenseInitialized) {
-        return; // Already initialized
-    }
-
-    // Mark as initialized to prevent duplicate calls
-    window.adsenseInitialized = true;
-
-    try {
-        // Force layout calculation for all ad elements before initializing
-        const adElements = document.querySelectorAll('.adsbygoogle');
-        adElements.forEach(ad => {
-            // Ensure the ad element has display:block and proper dimensions
-            if (ad.style.display === '' || ad.style.display === 'inline') {
-                ad.style.display = 'block';
-            }
-            // Force the browser to calculate layout/dimensions
-            const forceLayout = ad.offsetWidth;
-        });
-
-        // Initialize all ads at once
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-        console.error("AdSense error:", e);
-        // Reset the flag if there was an error
-        window.adsenseInitialized = false;
+    // Static ads handled by inline pushes in HTML
+    // Only overlay ad needs special JavaScript handling
+    if (typeof window.adsbygoogle !== 'undefined') {
+        window.adsenseInitialized = true;
     }
 }
 
@@ -458,20 +433,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load the article first
     loadArticle();
 
-    // Initialize all ads after page and article content are fully loaded
-    // This handles static ads that need initialization after page load
-    setTimeout(() => {
-        // Only initialize if adsbygoogle object exists and not already initialized
-        if (typeof window.adsbygoogle !== 'undefined' && !window.adsenseInitialized) {
-            try {
-                // Initialize all static ads on the page
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                window.adsenseInitialized = true;
-            } catch (e) {
-                console.error("Static ads initialization error:", e);
-            }
-        }
-    }, 500); // Delay to ensure page content is loaded before ad initialization
+    // Mark that static ads are handled by inline pushes in HTML
+    // Only handle overlay ad specially
+    if (typeof window.adsbygoogle !== 'undefined') {
+        window.adsenseInitialized = true;
+    }
 
     // Show the ad overlay after a 5 second initial delay
     setTimeout(() => {
