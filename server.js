@@ -453,10 +453,16 @@ app.get('/api/proxy-content', async (req, res) => {
         
         // Remove all script tags for security
         content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-        
+
         // Remove meta tags that might cause issues
         content = content.replace(/<meta[^>]*name=["']viewport["'][^>]*>/gi, '');
-        
+
+        // Fix common broken image references by redirecting to local fallbacks
+        content = content.replace(/https:\/\/web3\.admissionbattle\.com\/icons\/logo\/en\.svg/gi, '/images/en.svg');
+
+        // Add Google Fonts link to the head to provide Open Sans as fallback
+        content = content.replace(/<head>/i, '<head>\n    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">');
+
         // Send modified content
         res.send(content);
     } catch (error) {

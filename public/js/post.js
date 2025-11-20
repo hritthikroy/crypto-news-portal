@@ -11,7 +11,7 @@ function getUrlParameter(name) {
 // Function to load the article content
 function loadArticle() {
     const articleUrl = getUrlParameter('url');
-    
+
     if (!articleUrl) {
         document.querySelector('#article-title').textContent = 'Error: No article URL provided.';
         document.querySelector('#article-iframe').style.display = 'none';
@@ -24,19 +24,19 @@ function loadArticle() {
         const loadingDiv = document.querySelector('#iframe-loading');
         iframe.style.display = 'none';
         loadingDiv.style.display = 'flex';
-        
+
         // Set the iframe source to the proxy endpoint to bypass X-Frame-Options
         iframe.src = `/api/proxy-content?url=${encodeURIComponent(articleUrl)}`;
-        
+
         // Show the iframe when it loads
         iframe.onload = function() {
             loadingDiv.style.display = 'none';
             iframe.style.display = 'block';
         };
-        
+
         // Update page title
         document.title = 'CryptoDaily - Article';
-        
+
         // Fetch article details to show the actual blog title
         fetch(`/api/article?url=${encodeURIComponent(articleUrl)}`)
             .then(response => response.json())
@@ -44,10 +44,10 @@ function loadArticle() {
                 document.querySelector('#article-title').textContent = article.title || 'Article';
                 document.querySelector('#article-date').textContent = article.pubDate || new Date().toLocaleDateString();
                 document.querySelector('#article-source').textContent = `Source: ${article.source || articleUrl.replace(/^https?:\/\//, '').split('/')[0]}`;
-                
+
                 // Fetch and display related posts based on the current article
                 fetchRelatedPosts(articleUrl, article.title);
-                
+
                 // Fetch and display view count
                 fetchViewCount(articleUrl);
             })
@@ -57,14 +57,19 @@ function loadArticle() {
                 document.querySelector('#article-title').textContent = 'Article';
                 document.querySelector('#article-date').textContent = new Date().toLocaleDateString();
                 document.querySelector('#article-source').textContent = '';
-                
+
                 // Still try to fetch related posts based on URL
                 fetchRelatedPosts(articleUrl);
-                
+
                 // Still try to fetch view count
                 fetchViewCount(articleUrl);
             });
-        
+
+        // Initialize AdSense for the article page after content loads
+        setTimeout(() => {
+            initializeAdSense();
+        }, 1000);
+
     } catch (error) {
         console.error('Error loading article:', error);
         document.querySelector('#article-title').textContent = 'Error loading article.';
@@ -336,12 +341,8 @@ function showAdOverlay() {
         clearInterval(countdownInterval);
     });
     
-    // Google AdSense script initialization
-    try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-        console.error("AdSense error:", e);
-    }
+    // Initialize AdSense for the overlay ad specifically
+    initializeAdSense();
 }
 
 // Function to hide ad overlay and show content
@@ -352,6 +353,25 @@ function hideAdOverlay() {
         adOverlay.style.display = 'none';
     }, 500); // Allow time for fade-out transition
     clearInterval(countdownInterval);
+}
+
+// Function to initialize AdSense ads only on elements that haven't been initialized
+function initializeAdSense() {
+    // Only initialize ads that don't have the 'data-ad-status' attribute set to 'done'
+    const adsToInitialize = document.querySelectorAll('ins.adsbygoogle:not([data-ad-status="done"])');
+
+    adsToInitialize.forEach(ad => {
+        // Mark this ad as being initialized
+        ad.setAttribute('data-ad-status', 'loading');
+
+        try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("AdSense error:", e);
+            // Reset the status if there was an error
+            ad.removeAttribute('data-ad-status');
+        }
+    });
 }
 
 // Fullscreen functionality

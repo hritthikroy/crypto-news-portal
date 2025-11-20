@@ -1,0 +1,21 @@
+{
+  "name": "CryptoDaily - Latest Cryptocurrency News",
+  "short_name": "CryptoDaily",
+  "description": "Your source for the latest cryptocurrency news and updates",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#3a86ff",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "images/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
