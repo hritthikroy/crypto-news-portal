@@ -345,19 +345,31 @@ function showNextItems() {
                 adsAdded++;
                 const adElement = document.createElement('div');
                 adElement.className = 'news-ad';
-                adElement.innerHTML = `
-                    <div class="ad-placeholder">
-                        <ins class="adsbygoogle"
-                             style="display:block"
-                             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                             data-ad-slot="1234567893"
-                             data-ad-format="auto"
-                             data-full-width-responsive="true"></ins>
-                        <script>
-                             (adsbygoogle = window.adsbygoogle || []).push({});
-                        </script>
-                    </div>
-                `;
+                const adPlaceholder = document.createElement('div');
+                adPlaceholder.className = 'ad-placeholder';
+
+                const adIns = document.createElement('ins');
+                adIns.className = 'adsbygoogle';
+                adIns.style.display = 'block';
+                adIns.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX');
+                adIns.setAttribute('data-ad-slot', '1234567893');
+                adIns.setAttribute('data-ad-format', 'auto');
+                adIns.setAttribute('data-full-width-responsive', 'true');
+
+                adPlaceholder.appendChild(adIns);
+                adElement.appendChild(adPlaceholder);
+
+                // Add the ad element to the grid first
+                newsGrid.appendChild(adElement);
+
+                // Then initialize the ad after a short delay to ensure DOM insertion
+                setTimeout(() => {
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    } catch (e) {
+                        console.error("Dynamic ad error:", e);
+                    }
+                }, 100);
                 newsGrid.appendChild(adElement);
             }
         }
@@ -593,25 +605,40 @@ function initializeAdSense() {
     // Mark as initialized to prevent duplicate calls
     window.adsenseInitialized = true;
 
-    // Wait a bit to ensure DOM is fully loaded before initializing ads
-    setTimeout(() => {
-        try {
-            // Initialize all ads at once
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-            console.error("AdSense error:", e);
-            // Reset the flag if there was an error
-            window.adsenseInitialized = false;
-        }
-    }, 500);
+    // Just mark as initialized, main initialization handled separately to avoid duplicates
+    // since HTML already initializes static ads
 }
 
-// Initialize ads after DOM is loaded and page has loaded
+// Initialize ads after DOM is loaded and content is ready
+// Only do this if there are ads that weren't initialized via HTML
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAdSense);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Small delay to ensure all HTML ads are processed
+        setTimeout(() => {
+            if (!window.adsenseInitialized) {
+                try {
+                    // Initialize any remaining ads
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {
+                    console.error("AdSense error:", e);
+                }
+                window.adsenseInitialized = true;
+            }
+        }, 500);
+    });
 } else {
     // DOM is already loaded, initialize ads after a short delay to ensure all elements are ready
-    setTimeout(initializeAdSense, 500);
+    setTimeout(() => {
+        if (!window.adsenseInitialized) {
+            try {
+                // Initialize any remaining ads
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error("AdSense error:", e);
+            }
+            window.adsenseInitialized = true;
+        }
+    }, 500);
 }
 
 // Daily news update is handled by the countdown timer
