@@ -1212,6 +1212,20 @@ footer {
 .related-post-item a:hover {
     text-decoration: underline;
 }
+/* Ad Above Iframe Styles */
+.ad-above-iframe {
+    text-align: center;
+    margin: 20px 0;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.ad-above-iframe .adsbygoogle {
+    margin: 0 auto;
+}
+
 /* View Count Styles for Post Page */
 .view-count-section {
     display: flex;
