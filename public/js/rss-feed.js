@@ -362,18 +362,19 @@ function showNextItems() {
                 // Add the ad element to the grid first
                 newsGrid.appendChild(adElement);
 
-                // Trigger AdSense to process new ad elements that have been added to the DOM
-                // Use a slightly different approach by calling push after ensuring DOM is updated
+                // For dynamically added ads, they should be initialized via push
+                // But to avoid conflicts with inline pushes, we'll use a targeted approach
+                // Process this new ad element after a delay to ensure it's properly in DOM
                 setTimeout(() => {
                     if (typeof adsbygoogle !== 'undefined') {
                         try {
-                            // Process all unprocessed ads which includes the newly added one
+                            // Initialize the newly added ad
                             (window.adsbygoogle = window.adsbygoogle || []).push({});
                         } catch (e) {
                             console.error("Dynamic ad error:", e);
                         }
                     }
-                }, 200); // Wait a bit more to ensure element is properly in DOM
+                }, 200); // Wait to ensure element is properly in DOM
             }
         }
         

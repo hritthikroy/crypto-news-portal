@@ -341,14 +341,13 @@ function showAdOverlay() {
         clearInterval(countdownInterval);
     });
 
-    // Initialize the overlay ad specifically - this one needs special handling
-    // because it's in an initially hidden container
+    // Initialize only the overlay ad - other ads are handled by inline scripts
+    // The overlay ad needs special handling since it's initially in a hidden container
     setTimeout(() => {
         const overlayAd = document.querySelector('.ad-overlay-ins .adsbygoogle');
-
         if (overlayAd && !overlayAd.hasAttribute('data-ad-status')) {
-            // Mark as initialized first
-            overlayAd.setAttribute('data-ad-status', 'done');
+            // Mark as being handled
+            overlayAd.setAttribute('data-ad-status', 'processing');
 
             // Temporarily make the overlay visible for dimension calculation
             const originalDisplay = adOverlay.style.display;
@@ -358,18 +357,19 @@ function showAdOverlay() {
             // Force layout calculation
             const forceLayout = overlayAd.offsetWidth;
 
+            // Initialize only this specific ad element
             try {
-                // Initialize just this overlay ad
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
             } catch (e) {
                 console.error("AdSense overlay error:", e);
             } finally {
-                // Restore original display, but keep it ready to show
+                // Mark as done and restore original state
+                overlayAd.setAttribute('data-ad-status', 'done');
                 adOverlay.style.display = originalDisplay;
                 adOverlay.style.visibility = '';
             }
         }
-    }, 50); // Quick initialization after the overlay setup
+    }, 100); // Slightly longer delay to ensure overlay setup complete
 }
 
 // Function to hide ad overlay and show content
@@ -455,8 +455,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load the article first
     loadArticle();
 
-    // No need to initialize other ads via JavaScript - HTML handles them
-    // Only handle overlay ad initialization via JavaScript since it's in hidden container
+    // No need to initialize ads via JavaScript since inline scripts handle them
+    // Only handle special cases in JavaScript
 
     // Show the ad overlay after a 5 second initial delay
     setTimeout(() => {
