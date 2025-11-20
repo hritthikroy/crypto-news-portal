@@ -345,6 +345,34 @@ function showAdOverlay() {
     // The overlay ad should be handled by the main adsense initialization
     if (!window.adsenseInitialized) {
         initializeAdSense();
+    } else {
+        // If ads are already initialized, try to initialize the overlay ad specifically
+        // Make sure the overlay is displayed when initializing the ad
+        const adOverlay = document.getElementById('ad-overlay');
+        const originalDisplay = adOverlay.style.display;
+
+        // Temporarily show the overlay for ad initialization (if it's not already visible)
+        if (adOverlay.style.display === 'none') {
+            adOverlay.style.visibility = 'hidden';
+            adOverlay.style.display = 'flex';
+        }
+
+        setTimeout(() => {
+            try {
+                // Initialize the overlay ad specifically
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error("AdSense overlay error:", e);
+            } finally {
+                // Restore original display state
+                if (originalDisplay === 'none') {
+                    adOverlay.style.display = 'none';
+                    adOverlay.style.visibility = '';
+                } else {
+                    adOverlay.style.visibility = '';
+                }
+            }
+        }, 100); // Slight delay to ensure display changes take effect
     }
 }
 
